@@ -12,13 +12,12 @@ const waterMaterial = new THREE.ShaderMaterial({
   uniforms: {
     time: { value: 0.0 },
     lightPosition: { value: new THREE.Vector3(10, 10, 10) }
-    // Do not add cameraPosition; Three.js provides it automatically
   },
   vertexShader: '',
   fragmentShader: '',
-  side: THREE.DoubleSide,         // optional; SingleSide is fine too
+  side: THREE.DoubleSide,
   transparent: true,
-  depthWrite: false               // helps avoid sorting artifacts with transparency
+  depthWrite: false
 });
 
 new SourceLoader().load(shaderFiles, function (shaders) {

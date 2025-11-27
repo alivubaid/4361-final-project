@@ -5,7 +5,7 @@ varying vec3 vWorldPos;
 
 uniform float time;
 
-// Multi-frequency wave field (x,z plane)
+// Multi-frequency wave field
 float waveField(vec2 p, float t) {
   return 0.3 * sin(p.x * 0.5 + t)
        + 0.2 * cos(p.y * 0.7 + t * 1.2)
@@ -16,7 +16,7 @@ void main() {
   vec3 pos = position;
   pos.y += waveField(pos.xz, time);
 
-  // View & world positions
+  // Pass positions to fragment shader
   vec4 mvPosition = modelViewMatrix * vec4(pos, 1.0);
   vViewPos = mvPosition.xyz;
   vWorldPos = (modelMatrix * vec4(pos, 1.0)).xyz;
