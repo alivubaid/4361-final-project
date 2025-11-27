@@ -11,13 +11,14 @@ const { scene, camera, worldFrame } = createScene(canvas, renderer);
 const waterMaterial = new THREE.ShaderMaterial({
   uniforms: {
     time: { value: 0.0 },
-    lightPosition: { value: new THREE.Vector3(10, 10, 10) },
-    cameraPosition: { value: new THREE.Vector3() }
+    lightPosition: { value: new THREE.Vector3(10, 10, 10) }
+    // Do not add cameraPosition; Three.js provides it automatically
   },
   vertexShader: '',
   fragmentShader: '',
-  side: THREE.DoubleSide,
-  transparent: true
+  side: THREE.DoubleSide,         // optional; SingleSide is fine too
+  transparent: true,
+  depthWrite: false               // helps avoid sorting artifacts with transparency
 });
 
 new SourceLoader().load(shaderFiles, function (shaders) {
@@ -38,8 +39,6 @@ new SourceLoader().load(shaderFiles, function (shaders) {
 function animate() {
   requestAnimationFrame(animate);
 
-  waterMaterial.uniforms.time.value = performance.now() / 1000;
-  waterMaterial.uniforms.cameraPosition.value.copy(camera.position);
-
+  waterMaterial.uniforms.time.value = performance.now() / 1000
   renderer.render(scene, camera);
 }

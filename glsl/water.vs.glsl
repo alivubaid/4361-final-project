@@ -1,25 +1,25 @@
-varying vec3 vNormal;
+precision mediump float;
+
 varying vec3 vViewPos;
+varying vec3 vWorldPos;
 
 uniform float time;
 
-float wave(float x, float z, float t) {
-  return 0.5 * sin(x * 0.5 + t) * cos(z * 0.5 + t);
+// Multi-frequency wave field (x,z plane)
+float waveField(vec2 p, float t) {
+  return 0.3 * sin(p.x * 0.5 + t)
+       + 0.2 * cos(p.y * 0.7 + t * 1.2)
+       + 0.1 * sin((p.x + p.y) * 0.3 + t * 0.8);
 }
 
 void main() {
   vec3 pos = position;
-  pos.y += wave(pos.x, pos.z, time);
+  pos.y += waveField(pos.xz, time);
 
-  // Sample displaced neighbors
-  float eps = 0.1;
-  vec3 dx = vec3(eps, wave(pos.x + eps, pos.z, time) - wave(pos.x, pos.z, time), 0.0);
-  vec3 dz = vec3(0.0, wave(pos.x, pos.z + eps, time) - wave(pos.x, pos.z, time), eps);
-
-  // Cross product → normal
-  vNormal = normalize(cross(dz, dx));
-
+  // View & world positions
   vec4 mvPosition = modelViewMatrix * vec4(pos, 1.0);
   vViewPos = mvPosition.xyz;
+  vWorldPos = (modelMatrix * vec4(pos, 1.0)).xyz;
+
   gl_Position = projectionMatrix * mvPosition;
 }
