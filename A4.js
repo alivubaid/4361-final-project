@@ -10,14 +10,10 @@ const { scene, camera, worldFrame } = createScene(canvas, renderer);
 
 const waterMaterial = new THREE.ShaderMaterial({
   uniforms: {
+    lightPosition: { value: new THREE.Vector3(10, 5, 10) },
     time: { value: 0.0 },
-    lightPosition: { value: new THREE.Vector3(10, 20, 10) },
-    cameraPosition: { value: new THREE.Vector3() }
-  },
-  vertexShader: '',
-  fragmentShader: '',
-  side: THREE.DoubleSide,
-  transparent: true
+    cameraPosition: { value: camera.position.clone() }
+  }
 });
 
 new SourceLoader().load(shaderFiles, function (shaders) {
@@ -39,7 +35,7 @@ new SourceLoader().load(shaderFiles, function (shaders) {
 function animate() {
   requestAnimationFrame(animate);
 
-  waterMaterial.uniforms.time.value += 0.01;
+  waterMaterial.uniforms.time.value = performance.now() / 1000;
   waterMaterial.uniforms.cameraPosition.value.copy(camera.position);
 
   renderer.render(scene, camera);
