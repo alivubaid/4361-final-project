@@ -11,7 +11,7 @@ const { scene, camera, worldFrame } = createScene(canvas, renderer);
 const waterMaterial = new THREE.ShaderMaterial({
   uniforms: {
     time: { value: 0.0 },
-    lightPosition: { value: new THREE.Vector3(10, 20, 10) },
+    lightPosition: { value: new THREE.Vector3(10, 10, 10) },
     cameraPosition: { value: new THREE.Vector3() }
   },
   vertexShader: '',
@@ -25,9 +25,8 @@ new SourceLoader().load(shaderFiles, function (shaders) {
   waterMaterial.fragmentShader = shaders['glsl/water.fs.glsl'];
   waterMaterial.needsUpdate = true;
 
-  const lakeGeometry = new THREE.PlaneGeometry(20, 20, 100, 100);
-  const lake = new THREE.Mesh(lakeGeometry, waterMaterial);
-  lake.rotation.x = -Math.PI / 2;
+  const lakeGeometry = new THREE.PlaneGeometry(20, 20, 200, 200);  const lake = new THREE.Mesh(lakeGeometry, waterMaterial);
+  lake.rotation.x = -Math.PI / 2; 
   scene.add(lake);
 
   camera.position.set(0, 10, 30);
@@ -39,7 +38,7 @@ new SourceLoader().load(shaderFiles, function (shaders) {
 function animate() {
   requestAnimationFrame(animate);
 
-  waterMaterial.uniforms.time.value += 0.01;
+  waterMaterial.uniforms.time.value = performance.now() / 1000;
   waterMaterial.uniforms.cameraPosition.value.copy(camera.position);
 
   renderer.render(scene, camera);
