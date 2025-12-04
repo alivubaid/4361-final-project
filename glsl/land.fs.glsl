@@ -2,14 +2,14 @@ precision highp float;
 varying vec3 vWorldPosition;
 
 void main() {
-    // --- River cut-out ---
+    // River cut-out
     float halfWidth  = 10.0;
     float halfLength = 100.0;
     if (abs(vWorldPosition.z) < halfWidth && abs(vWorldPosition.x) < halfLength) {
         discard;
     }
 
-    // --- Green gradient by height ---
+    // Green gradient by height
     float h = vWorldPosition.y;
 
     // Define two shades of green
