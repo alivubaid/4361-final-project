@@ -55,6 +55,13 @@ new SourceLoader().load(shaderFiles, function (shaders) {
   camera.position.set(0, 10, 30);
   camera.lookAt(0, 0, 0);
 
+  const groundBoxGeometry = new THREE.BoxGeometry(200, 10, 200);
+  const groundBoxMaterial = new THREE.MeshBasicMaterial({ color: 0x0a3d0a });
+  const groundBox = new THREE.Mesh(groundBoxGeometry, groundBoxMaterial);
+  groundBox.position.y = -10; // adjust so it sits just below land/water
+  scene.add(groundBox);
+
+
   // Add a starfield background
   const starGeom = new THREE.SphereGeometry(0.1, 8, 8);
   const starMat = new THREE.MeshBasicMaterial({ color: 0xFFFFFF });
@@ -104,33 +111,67 @@ new SourceLoader().load(shaderFiles, function (shaders) {
     foliage.position.y = 2.4;
     group.add(foliage);
 
-    // Create a box under the water to block view beneath the ground
-    const groundBoxGeometry = new THREE.BoxGeometry(200, 10, 200); // width, height, depth
-    const groundBoxMaterial = new THREE.MeshBasicMaterial({ color: 0x0a3d0a }); // dark green/brown
-    const groundBox = new THREE.Mesh(groundBoxGeometry, groundBoxMaterial);
-
-    // Position it just below the water plane
-    groundBox.position.y = -10; // adjust so it sits under your land/water
-    scene.add(groundBox);
-
     return group;
   }
 
   // Spread multiple trees across the plane (randomized within plane bounds)
   // Plane is 20x20 centered at origin; keep trees inside -9..9 to avoid edges
-  const numTrees = 6;
-  const spread = 9;
-  for (let i = 0; i < numTrees; i++) {
-    const t = createTree();
-    const x = (Math.random() * 2 - 1) * spread;
-    const z = (Math.random() * 2 - 1) * spread;
-    t.position.set(x, 0, z);
-    // random slight scale and rotation for variety
-    const s = 0.8 + Math.random() * 0.8;
-    t.scale.set(s, s, s);
-    t.rotation.y = Math.random() * Math.PI * 2;
-    scene.add(t);
-  }
+  // Helper: same as before
+function createTree() {
+  const group = new THREE.Group();
+
+  const trunkGeom = new THREE.CylinderGeometry(0.2, 0.2, 2, 12);
+  const trunkMat = new THREE.MeshStandardMaterial({ color: 0x8B4513, roughness: 0.3, metalness: 0.8 });
+  const trunk = new THREE.Mesh(trunkGeom, trunkMat);
+  trunk.position.y = 1.0;
+  group.add(trunk);
+
+  const foliageGeom = new THREE.SphereGeometry(1.2, 16, 12);
+  const foliageMat = new THREE.MeshStandardMaterial({ color: 0x228B22, roughness: 0.2, metalness: 0.7 });
+  const foliage = new THREE.Mesh(foliageGeom, foliageMat);
+  foliage.position.y = 2.4;
+  group.add(foliage);
+
+  return group;
+}
+
+// Elevation function (same as vertex shader)
+function getLandHeight(x, z) {
+  return Math.sin(x * 0.2) * Math.cos(z * 0.2) * 2.0;
+}
+
+// Plane bounds
+const halfWidth  = 200 / 2; // 100
+const halfHeight = 100 / 2; // 50
+
+// River bounds
+const riverHalfWidth  = 10;
+const riverHalfLength = 100;
+
+// Dense forest
+const numTrees = 500; // much higher count
+
+for (let i = 0; i < numTrees; i++) {
+  let x, z, y;
+
+  // Keep picking until outside river
+  do {
+    x = (Math.random() * 2 - 1) * halfWidth;
+    z = (Math.random() * 2 - 1) * halfHeight;
+    y = getLandHeight(x, z);
+  } while (Math.abs(z) < riverHalfWidth && Math.abs(x) < riverHalfLength);
+
+  const t = createTree();
+  t.position.set(x, y, z);
+
+  // Random scale/rotation for variety
+  const s = 0.7 + Math.random() * 0.6;
+  t.scale.set(s, s, s);
+  t.rotation.y = Math.random() * Math.PI * 2;
+
+  scene.add(t);
+}
+
 
   // Keyboard controls for moon movement
   const keys = {};
