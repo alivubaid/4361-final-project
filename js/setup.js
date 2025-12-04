@@ -5,7 +5,7 @@ function setup() {
   const canvas = document.getElementById('webglcanvas');
   const context = canvas.getContext('webgl2');
   const renderer = new THREE.WebGLRenderer({ canvas, context });
-  renderer.setClearColor(0x80CEE1); // light blue background
+  renderer.setClearColor(0x000000); // black background
   return { renderer, canvas };
 }
 
@@ -30,10 +30,7 @@ function createScene(canvas, renderer) {
   window.addEventListener('resize', resize);
   resize();
 
-  const worldFrame = new THREE.AxesHelper(1);
-  scene.add(worldFrame);
-
-  return { scene, camera, worldFrame };
+  return { scene, camera };
 }
 
 export { setup, createScene };
