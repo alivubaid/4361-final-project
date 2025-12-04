@@ -3,7 +3,7 @@ import { setup, createScene } from './js/setup.js';
 import { SourceLoader } from './js/SourceLoader.js';
 import { OrbitControls } from './js/OrbitControls.js';
 
-const shaderFiles = ['glsl/water.vs.glsl', 'glsl/water.fs.glsl'];
+const shaderFiles = ['glsl/water.vs.glsl', 'glsl/water.fs.glsl', 'glsl/land.vs.glsl' , 'glsl/land.fs.glsl'];
 
 const { renderer, canvas } = setup();
 const { scene, camera } = createScene(canvas, renderer);
@@ -21,16 +21,36 @@ const waterMaterial = new THREE.ShaderMaterial({
   transparent: true
 });
 
+const landMaterial = new THREE.ShaderMaterial({
+  uniforms: {
+     lightPosition: { value: new THREE.Vector3(10, 20, 10) },
+    cameraPosition: { value: new THREE.Vector3() }
+  },
+  vertexShader: '',
+  fragmentShader: '',
+  side: THREE.DoubleSide
+})
+
 new SourceLoader().load(shaderFiles, function (shaders) {
-  waterMaterial.vertexShader = shaders['glsl/water.vs.glsl'];
+  waterMaterial.vertexShader = shaders['glsl/water.vs.glsl']; // water
   waterMaterial.fragmentShader = shaders['glsl/water.fs.glsl'];
   waterMaterial.needsUpdate = true;
 
-  const lakeGeometry = new THREE.PlaneGeometry(20, 20, 100, 100);
+  const lakeGeometry = new THREE.PlaneGeometry(200, 20, 100, 100);
   const lake = new THREE.Mesh(lakeGeometry, waterMaterial);
   lake.rotation.x = -Math.PI / 2;
   // Use the shader material for animated water
   scene.add(lake);
+
+  landMaterial.vertexShader = shaders['glsl/land.vs.glsl']; // land
+  landMaterial.fragmentShader = shaders['glsl/land.fs.glsl'];
+  landMaterial.needsUpdate = true;
+
+  const landGeometry = new THREE.PlaneGeometry(200, 100, 400, 400);
+  const land = new THREE.Mesh(landGeometry, landMaterial);
+  land.rotation.x = -Math.PI / 2;
+  land.position.y = -.1;
+  scene.add(land);
 
   camera.position.set(0, 10, 30);
   camera.lookAt(0, 0, 0);
@@ -83,6 +103,15 @@ new SourceLoader().load(shaderFiles, function (shaders) {
     const foliage = new THREE.Mesh(foliageGeom, foliageMat);
     foliage.position.y = 2.4;
     group.add(foliage);
+
+    // Create a box under the water to block view beneath the ground
+    const groundBoxGeometry = new THREE.BoxGeometry(200, 10, 200); // width, height, depth
+    const groundBoxMaterial = new THREE.MeshBasicMaterial({ color: 0x0a3d0a }); // dark green/brown
+    const groundBox = new THREE.Mesh(groundBoxGeometry, groundBoxMaterial);
+
+    // Position it just below the water plane
+    groundBox.position.y = -10; // adjust so it sits under your land/water
+    scene.add(groundBox);
 
     return group;
   }
